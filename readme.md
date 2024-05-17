@@ -9,11 +9,11 @@ A modern alternative to Notistack (or similar).
 ### Usage
 ```js
 // Import in your index.js/ts
-import { Notifier } from 'notifier'
+import { Notifier } from 'light-notifier'
 new Notifier()
 
 // Somewhere in your code
-import { NotifierNotification } from 'notifier'
+import { NotifierNotification } from 'light-notifier'
 new NotifierNotification({
     message: 'Hello world',
     color: 'success'
@@ -24,7 +24,7 @@ new NotifierNotification({
 ### Configuration
 ```js
 // The notifier itself
-import { Notifier } from 'notifier'
+import { Notifier } from 'light-notifier'
 
 // Default alignment: vertical = bottom, horizontal = right
 
@@ -45,7 +45,7 @@ new Notifier()
 
 
 // The Notification
-import { NotifierNotification } from 'notifier'
+import { NotifierNotification } from 'light-notifier'
 new NotifierNotification({
     message: 'Some string',
     color: 'success', // warning, error or undefined
