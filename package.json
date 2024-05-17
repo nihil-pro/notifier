@@ -1,0 +1,11 @@
+{
+  "name": "light-notifier",
+  "version": "1.0.0",
+  "description": "A simple ui notifier",
+  "module": "index.js",
+  "type": "module",
+  "types": "index.d.ts",
+  "keywords": ["notifications", "ui"],
+  "author": "d9151330773@icloud.com",
+  "license": "ISC"
+}
