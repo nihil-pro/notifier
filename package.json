@@ -7,5 +7,9 @@
   "types": "index.d.ts",
   "keywords": ["notifications", "ui"],
   "author": "d9151330773@icloud.com",
-  "license": "ISC"
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nihil-pro/notifier.git"
+  }
 }
