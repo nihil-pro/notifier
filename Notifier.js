@@ -94,6 +94,7 @@ export class Notifier {
     const $popover = document.createElement('article');
     $popover.popover = "manual";
     if (event instanceof NotifierNotification) {
+      $popover.setAttribute('id', event.id)
       $popover.textContent = event.detail.message.toString()
       $popover.classList.add('ui-notification', 'latest', this.#xPosition, event.detail.color)
       if (event.detail.closable) {

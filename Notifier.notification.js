@@ -1,36 +1,73 @@
-function noop() {}
-
 export class NotifierNotification extends CustomEvent {
-  init
-  static colors = {
-    canvas: 'canvas',
-    success: 'success',
-    error: 'error',
-    warning: 'warning'
-  }
+  static colors = { canvas: 'canvas', success: 'success', error: 'error', warning: 'warning' }
   static type = 'whenNotifierNotificationReceived'
+  id = crypto.randomUUID()
+  #target = undefined
+  init
 
-  /** @param {{
-      message?: string | undefined
-      color?: 'canvas' | 'error' | 'success' | 'warning' | undefined
-      closable?: boolean | undefined
-      onClick?: Function | undefined
-   }} detail */
-  constructor(detail = {}) {
-    const payload = {
-      message: detail.message || '',
-      color: detail.color || NotifierNotification.colors.canvas,
-      closable: detail.closable === undefined ? true : detail.closable,
-      onClick: detail.onClick || noop,
-    }
-    const isAllowedColor = Object.values(NotifierNotification.colors).includes(detail.color)
-    if (!isAllowedColor) {
-      payload.color = NotifierNotification.colors.canvas
-      console.warn(`NotifierNotification: the Canvas color was set, because provided color is not allowed`)
-    }
-    const init = { detail: payload }
+  constructor() {
+    const detail = { message: '', color: NotifierNotification.colors.canvas, closable: true, onClick: () => {} }
+    const init = { detail }
     super(NotifierNotification.type, init);
-    this.init = init
-    document.dispatchEvent(this)
+    this.init = init;
+    this.setMessage = this.setMessage.bind(this);
+    this.hideCloseButton = this.hideCloseButton.bind(this);
+    this.onClick = this.onClick.bind(this)
+    this.show = this.show.bind(this);
+    this.hide = this.hide.bind(this);
+  }
+
+  setMessage(message = '') {
+    this.init.detail.message = typeof message === 'string' ? message : message.toString();
+    return this
+  }
+
+  /** Mark as error */
+  error() {
+    this.init.detail.color = NotifierNotification.colors.error
+    return this
+  }
+
+  /** Mark as warning */
+  warning() {
+    this.init.detail.color = NotifierNotification.colors.warning
+    return this
+  }
+
+  /** Mark as success */
+  success() {
+    this.init.detail.color = NotifierNotification.colors.success
+    return this
+  }
+
+  /** Mark as default */
+  default() {
+    this.init.detail.color = NotifierNotification.colors.canvas
+    return this
+  }
+
+  onClick(callback = () => {}) {
+    if (typeof callback !== 'function') { throw new Error('Invalid argument. Only functions are allowed'); }
+    this.init.detail.onClick = callback;
+    return this
+  }
+
+  hideCloseButton() {
+    this.init.detail.closable = false;
+    return this
+  }
+
+  show() {
+    if (this.#target) { throw new Error('This notification has already been displayed'); }
+    document.dispatchEvent(this);
+    this.#target = document.getElementById(this.id);
+    return this
+  }
+
+  hide() {
+    if (!this.#target) { throw new Error('You cannot close a notification that has not yet been displayed'); }
+    this.#target.hidePopover();
+    this.#target.remove();
+    return this
   }
 }
