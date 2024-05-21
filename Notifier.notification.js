@@ -10,11 +10,9 @@ export class NotifierNotification extends CustomEvent {
     const init = { detail }
     super(NotifierNotification.type, init);
     this.init = init;
-    this.setMessage = this.setMessage.bind(this);
-    this.hideCloseButton = this.hideCloseButton.bind(this);
-    this.onClick = this.onClick.bind(this)
-    this.show = this.show.bind(this);
-    this.hide = this.hide.bind(this);
+    Reflect.ownKeys(NotifierNotification.prototype)
+      .filter(key => key !== 'constructor')
+      .forEach(method => this[method] = this[method].bind(this))
   }
 
   setMessage(message = '') {
@@ -40,8 +38,8 @@ export class NotifierNotification extends CustomEvent {
     return this
   }
 
-  /** Mark as default */
-  default() {
+  /** Mark as Canvas color */
+  canvas() {
     this.init.detail.color = NotifierNotification.colors.canvas
     return this
   }
