@@ -1,8 +1,9 @@
-import { NotifierNotification } from "./Notifier.notification.js";
+import { UiNotification } from "./Ui.notification.js";
 
 const style = `
 <style>
     .ui-notification {
+        font-family: system-ui;
         max-width: 300px;
         position: fixed; 
         box-shadow: rgba(99, 99, 99, 0.2) 0 2px 8px 0;
@@ -21,7 +22,6 @@ const style = `
               right: .5rem;
               top: .75rem;
               display: grid;
-              aspect-ratio: 1;
               place-content: center;
               border-radius: 100%;
             }
@@ -37,63 +37,53 @@ const style = `
 `
 
 export class Notifier {
-  static alignments = {
-    vertical: { top: 'top', bottom: 'bottom' },
-    horizontal: { left: 'left', right: 'right' }
-  }
-
+  static alignments = { vertical: { top: 'top', bottom: 'bottom' }, horizontal: { left: 'left', right: 'right' } }
   #gap = 16 // space between notifications
   #yPosition = Notifier.alignments.vertical.bottom
   #xPosition = Notifier.alignments.horizontal.right
-  #autoHideDuration = undefined
+  #autoHideDuration = 0
 
   constructor() {
-    this.alignToBottom = this.alignToBottom.bind(this)
-    this.alignToTop = this.alignToTop.bind(this)
-    this.alignToLeft = this.alignToLeft.bind(this)
-    this.alignToRight = this.alignToRight.bind(this)
-    this.setAutoHideDurationInMs = this.setAutoHideDurationInMs.bind(this)
+    Reflect.ownKeys(Notifier.prototype)
+      .filter(key => key !== 'constructor')
+      .forEach(method => this[method] = this[method].bind(this))
     const range = document.createRange()
     const styles = range.createContextualFragment(style)
     document.head.appendChild(styles)
-    document.addEventListener(NotifierNotification.type, this.#whenNotificationReceived.bind(this))
+    document.addEventListener(UiNotification.type, this.#whenNotificationReceived.bind(this))
   }
 
   #whenNotificationReceived(event) {
-    if (event instanceof NotifierNotification) {
+    if (event instanceof UiNotification) {
       const $popover = this.#createPopover(event)
-      document.body.appendChild($popover)
+      this.#appendToDom($popover)
       $popover.showPopover()
-
-      $popover.addEventListener('toggle', (event) => {
-        const notificationHeight = $popover.getBoundingClientRect().height
-        if ('newState' in event && event.newState === "open") {
-          this.#shiftOldestNotifications(notificationHeight);
-        }
-      });
-
-      if (event.detail.closable) {
-        $popover.addEventListener('click', () => {
-          $popover.hidePopover()
-          $popover.remove()
-        }, { once: true })
-      }
-
-      if(this.#autoHideDuration) {
-        setTimeout(() => {
-          $popover.hidePopover()
-          $popover.remove()
-        }, this.#autoHideDuration)
-      }
-
+      this.#shiftOldestNotifications($popover.getBoundingClientRect().height);
+      if (event.detail.closable) { $popover.addEventListener('click', event.hide, { once: true }); }
+      const shouldAutoHide = event.detail.autoHideDuration || this.#autoHideDuration
+      if(shouldAutoHide) { setTimeout(event.hide, shouldAutoHide); }
       $popover.addEventListener('click', event.detail.onClick)
     }
+  }
+
+  #appendToDom($popover) {
+    let wasAppended = false
+    // If there is an active dialog, we need to insert notification within it so that clicks will work
+    for (const dialog of document.getElementsByTagName('dialog')) {
+      if (dialog.open) {
+        dialog.appendChild($popover);
+        wasAppended = true;
+        break
+      }
+    }
+    if (!wasAppended) { document.body.appendChild($popover); }
   }
 
   #createPopover(event) {
     const $popover = document.createElement('article');
     $popover.popover = "manual";
-    if (event instanceof NotifierNotification) {
+    if (event instanceof UiNotification) {
+      $popover.setAttribute('id', event.id)
       $popover.textContent = event.detail.message.toString()
       $popover.classList.add('ui-notification', 'latest', this.#xPosition, event.detail.color)
       if (event.detail.closable) {
@@ -139,7 +129,7 @@ export class Notifier {
   }
 
   setAutoHideDurationInMs(value) {
-    this.#autoHideDuration = parseInt(value) || undefined
+    this.#autoHideDuration = parseInt(value) || 0
     return this
   }
 }
