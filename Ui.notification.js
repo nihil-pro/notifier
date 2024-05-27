@@ -64,9 +64,7 @@ export class UiNotification extends CustomEvent {
 
   /** This setting takes precedence over the Notifier */
   setAutoHideDurationInMs(duration= 0) {
-    if (Number.isInteger(duration)) {
-      this.init.detail.autoHideDuration = duration;
-    }
+    if (Number.isInteger(duration)) { this.init.detail.autoHideDuration = duration; }
     return this
   }
 

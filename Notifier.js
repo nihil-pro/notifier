@@ -37,10 +37,7 @@ const style = `
 `
 
 export class Notifier {
-  static alignments = {
-    vertical: { top: 'top', bottom: 'bottom' },
-    horizontal: { left: 'left', right: 'right' }
-  }
+  static alignments = { vertical: { top: 'top', bottom: 'bottom' }, horizontal: { left: 'left', right: 'right' } }
   #gap = 16 // space between notifications
   #yPosition = Notifier.alignments.vertical.bottom
   #xPosition = Notifier.alignments.horizontal.right
@@ -59,51 +56,27 @@ export class Notifier {
   #whenNotificationReceived(event) {
     if (event instanceof UiNotification) {
       const $popover = this.#createPopover(event)
-      this.#appendToDom($popover, event.detail.closable)
+      this.#appendToDom($popover)
       $popover.showPopover()
-
-      $popover.addEventListener('toggle', (event) => {
-        const notificationHeight = $popover.getBoundingClientRect().height
-        if ('newState' in event && event.newState === "open") {
-          this.#shiftOldestNotifications(notificationHeight);
-        }
-      });
-
-      if (event.detail.closable) {
-        $popover.addEventListener('click', () => {
-          $popover.hidePopover()
-          $popover.remove()
-        }, { once: true })
-      }
-
+      this.#shiftOldestNotifications($popover.getBoundingClientRect().height);
+      if (event.detail.closable) { $popover.addEventListener('click', event.hide, { once: true }); }
       const shouldAutoHide = event.detail.autoHideDuration || this.#autoHideDuration
-      if(shouldAutoHide) {
-        setTimeout(() => {
-          $popover.hidePopover()
-          $popover.remove()
-        }, shouldAutoHide)
-      }
-
+      if(shouldAutoHide) { setTimeout(event.hide, shouldAutoHide); }
       $popover.addEventListener('click', event.detail.onClick)
     }
   }
 
-  #appendToDom($popover, closable) {
-    if (closable) {
-      // If a dialog is open, the close notification button will be under the dialog backdrop.
-      // Therefore, we have placed the notification within the dialog to ensure that it is available for pointerEvents
-      let wasAppended = false
-      for (const dialog of document.getElementsByName('dialog')) {
-        if (dialog.open) {
-          dialog.appendChild($popover);
-          wasAppended = true;
-          break
-        }
+  #appendToDom($popover) {
+    let wasAppended = false
+    // If there is an active dialog, we need to insert notification within it so that clicks will work
+    for (const dialog of document.getElementsByTagName('dialog')) {
+      if (dialog.open) {
+        dialog.appendChild($popover);
+        wasAppended = true;
+        break
       }
-      if (!wasAppended) { document.body.appendChild($popover) }
-    } else {
-      document.body.appendChild($popover)
     }
+    if (!wasAppended) { document.body.appendChild($popover); }
   }
 
   #createPopover(event) {
@@ -156,7 +129,7 @@ export class Notifier {
   }
 
   setAutoHideDurationInMs(value) {
-    this.#autoHideDuration = parseInt(value) || undefined
+    this.#autoHideDuration = parseInt(value) || 0
     return this
   }
 }

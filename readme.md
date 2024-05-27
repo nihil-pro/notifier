@@ -3,8 +3,11 @@
 A modern alternative to Notistack (or similar).
 - Framework-agnostic
 - Zero dependencies
-- Small size – 1.5kb (gzipped)
+- Extra-small size
 - Customizable
+
+![example](./notifications.png "Title")
+
 
 ### Usage
 ```js
@@ -13,11 +16,12 @@ import { Notifier } from 'light-notifier'
 new Notifier()
 
 // Somewhere in your code
-import { NotifierNotification } from 'light-notifier'
-new NotifierNotification({
-    message: 'Hello world',
-    color: 'success'
-}) 
+import { UiNotification } from 'light-notifier'
+const notification = new UiNotification()
+        .setMessage('Default notification')
+
+notification.show()
+notification.hide()
 // That's all 😎
 ```
 
@@ -45,13 +49,16 @@ new Notifier()
 
 
 // The Notification
-import { NotifierNotification } from 'light-notifier'
-new NotifierNotification({
-    message: 'Some string',
-    color: 'success', // warning, error or undefined
-    closable: false, // boolean or undefined. If true, shows a close button
-    onClick: undefined, // Any callback you want to invoke, when user click to the notification
-}) 
+import { UiNotification } from 'light-notifier'
+new UiNotification() 
+  .canvas() // Canvas color
+  .success() // Success color
+  .warning() // Warning color
+  .error() // Error color
+  .setMessage('Notification text')
+  .setAutoHideDurationInMs(3000) // takes precedence over Notifier.setAutoHideDurationInMs
+  .show() 
+  .hide()
 ```
 
 ### Customization
@@ -77,17 +84,16 @@ It's a bad practice, but anyway
 // Somewhere in your d.ts
 declare global {
   interface Window {
-    NotifierNotification: NotifierNotification
+    UiNotification: UiNotification
   }
 }
 
 // In your index.js
-Reflect.set(window, 'NotifierNotification', NotifierNotification)
+Reflect.set(window, 'UiNotification', UiNotification)
 
 // Anywhere in your code
-new NotifierNotification({ 
-  message: 'Using without import'
-})
+new UiNotification()
+ .setMessage('I am available in global context')
 ```
 
 ### FAQ
@@ -96,4 +102,8 @@ new NotifierNotification({
   Chromium > 114; Safari > 17; Opera > 100; Firefox > 125 e.t.c
 - <b>Can I add some html to notification?</b> <br />
   Not in this library. The notification should be simple.
-  If you need something more complicated, use dialog instead.
+  If you need something more complicated, use dialog instead.<br/>
+
+You can open an issue,
+or vote for an existing one about adding an icon and a title for notification,
+similar to [Notification](https://developer.mozilla.org/en-US/docs/Web/API/Notification)
