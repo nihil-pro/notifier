@@ -6,7 +6,7 @@ A modern alternative to Notistack (or similar).
 - Extra-small size
 - Customizable
 
-![example](./notifications.png "Title")
+![example](https://ibb.co/wJ7s5tN "Title")
 
 
 ### Usage
@@ -17,11 +17,9 @@ new Notifier()
 
 // Somewhere in your code
 import { UiNotification } from 'light-notifier'
-const notification = new UiNotification()
+new UiNotification()
         .setMessage('Default notification')
-
-notification.show()
-notification.hide()
+        .show()
 // That's all 😎
 ```
 

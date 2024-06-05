@@ -52,7 +52,10 @@ export class UiNotification extends CustomEvent {
 
   /** A callback that will be triggered when the notification is clicked */
   onClick(callback = () => {}) {
-    if (typeof callback !== 'function') { throw new Error('Invalid argument. Only functions are allowed'); }
+    if (typeof callback !== 'function') {
+      callback = () => {}
+      console.info('Invalid argument. Only functions are allowed');
+    }
     this.init.detail.onClick = callback;
     return this
   }
@@ -69,14 +72,20 @@ export class UiNotification extends CustomEvent {
   }
 
   show() {
-    if (this.#target) { throw new Error('This notification has already been displayed'); }
+    if (this.#target) {
+      console.info('This notification has already been displayed');
+      return this
+    }
     document.dispatchEvent(this);
     this.#target = document.getElementById(this.id);
     return this
   }
 
   hide() {
-    if (!this.#target) { throw new Error('You cannot close a notification that has not yet been displayed'); }
+    if (!this.#target) {
+      console.info('You cannot close a notification that has not yet been displayed');
+      return this
+    }
     this.#target.hidePopover();
     this.#target.remove();
     this.#target = undefined

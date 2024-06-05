@@ -1,6 +1,6 @@
 {
   "name": "light-notifier",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "A simple ui notifier",
   "module": "index.js",
   "type": "module",
